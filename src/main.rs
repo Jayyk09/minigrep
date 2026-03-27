@@ -1,5 +1,7 @@
-use std::{env, io};
+use std::process;
+use std::env;
 use std::fs;
+use std::error::Error;
 
 struct Config {
     query: String,
@@ -7,19 +9,25 @@ struct Config {
 }
 
 impl Config {
-fn build(args: &[String]) -> Config {
+fn build(args: &[String]) -> Result<Config, &'static str> {
+    if args.len() < 3 {
+        return Err("Less than two arguments")
+    }
     let query = args[1].clone();
     let file_path = args[2].clone();
 
-    Config { query, file_path }
+    Ok(Config { query, file_path })
 }
-    
 }
 
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    let config = Config::build(&args);
+    let config = Config::build(&args).unwrap_or_else(|err| {
+        println!("Trouble parsing arguments: {err}");
+        process::exit(1);
+    });
+
     let file_content = read_file(&config.file_path)
         .expect("File unable to be read");
     println!("{}", file_content);
@@ -27,7 +35,7 @@ fn main() {
 }
 
 
-fn read_file(file_name: &str) -> Result<String, io::Error> {
+fn read_file(file_name: &str) -> Result<String, Box<dyn Error>> {
     let file_content = fs::read_to_string(file_name)?;
     Ok(file_content)
 }
