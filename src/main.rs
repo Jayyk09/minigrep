@@ -9,21 +9,20 @@ struct Config {
 }
 
 impl Config {
-fn build(args: &[String]) -> Result<Config, &'static str> {
-    if args.len() < 3 {
-        return Err("Less than two arguments")
-    }
-    let query = args[1].clone();
-    let file_path = args[2].clone();
+fn build(
+    mut args: impl Iterator<Item = String>,
+    ) -> Result<Config, &'static str> {
+    args.next();
+
+    let query = args.next().ok_or("Let no query string")?;
+    let file_path = args.next().ok_or("Let no query string")?;
 
     Ok(Config { query, file_path })
 }
 }
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-
-    let config = Config::build(&args).unwrap_or_else(|err| {
+    let config = Config::build(env::args()).unwrap_or_else(|err| {
         println!("Trouble parsing arguments: {err}");
         process::exit(1);
     });
