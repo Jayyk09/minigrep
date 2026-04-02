@@ -2,6 +2,7 @@ use std::process;
 use std::env;
 use std::fs;
 use std::error::Error;
+mod parse;
 
 struct Config {
     query: String,
