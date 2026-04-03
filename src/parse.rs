@@ -15,8 +15,39 @@ enum RangeQuantifier {
 }
 
 pub fn parse_range_quantifier(s: &str) -> Option<(RangeQuantifier, &str)> {
-// the naive solution could be to go through the string and check manually if each type matches
+// the naive solution could be to go through the string and check manually if each type matche
 
-    None
+    let s = s.strip_prefix('{')?; // the alternative is let else with explicit checks
+
+// works but not idiomatic Rust
+//    let mut digits = String::new();
+//    for char in s.chars() {
+//        if char.is_ascii_digit() {
+//            digits.push(char);
+//        } else {
+//            break;
+//        }
+//    }
+//    let lower_bound: u32 = digits.parse().ok()?;
+
+    let end = s.find(|c: char| !c.is_ascii_digit()).unwrap_or(s.len());
+    let (digit, s) = s.split_at(end);
+    let lower_bound: u32 = digit.parse().ok()?;
+
+    let (quantifer, s) = match s.strip_prefix(',') {
+        None => (RangeQuantifier::Exact(lower_bound), s ),
+        Some(s) => {
+            let end = s.find(|c: char| !c.is_ascii_digit()).unwrap_or(s.len());
+            let (digit, s) = s.split_at(end);
+            match digit.is_empty() {
+                true => (RangeQuantifier::Minimum(lower_bound), s),
+                false => (RangeQuantifier::Between(lower_bound, digit.parse().ok()?), s)
+            }
+}
+};
+
+    let s = s.strip_prefix('}')?;
+
+    Some((quantifer, s))
 
 }

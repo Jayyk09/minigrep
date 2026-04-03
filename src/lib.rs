@@ -20,6 +20,8 @@ mod tests {
     #[test]
     fn one_result() {
         let query = "duct";
+        let s = query.chars().next().unwrap();
+        println!("{}", s);
         let file_content =  "\
 Rust:
 safe, fast, productive.
