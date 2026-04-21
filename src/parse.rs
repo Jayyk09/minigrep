@@ -51,3 +51,33 @@ pub fn parse_range_quantifier(s: &str) -> Option<(RangeQuantifier, &str)> {
     Some((quantifer, s))
 
 }
+
+// we can abstract the parse string and numbers away, but as we can see that all of the different
+// functions and the main one have the same signature
+
+// We create a struct that takes a generic type A and calls the function Parser. 
+// The parser fn takes in a string and returns type A with the rest of the string or None. 
+// Since a closure in Rust has an anonymous type, we can not put in the stack so instead we make it
+// heap allocated dynamic. 
+// Since a parser should not be tied to a specific string and should be tied to whatver string
+// calls it I implemented 
+
+type ParseFn<A> = Box<dyn for<'a> Fn(&'a str) -> Option<(A, &'a str)>>;
+
+struct Parser<A> {
+    parse: ParseFn<A>
+}
+
+// implement a method over Parser - it constructs a generic constructor which returns a Parser
+// 
+// the static makes sure there is no short lived borrow. 
+// It makes sure the user does not have to worry about Boxing.
+
+impl<A> Parser<A> {
+    fn new<F>(f: F) -> Self
+        where F: for<'a> Fn(&'a str) -> Option<(A, &'a str)> + 'static,
+    {
+        Parser {parse: Box::new(f)}
+    }
+}
+
