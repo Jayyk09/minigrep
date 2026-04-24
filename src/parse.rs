@@ -81,3 +81,17 @@ impl<A> Parser<A> {
     }
 }
 
+// now the map function -> it takes in function with type A and then returns B which is then parsed
+// with type B. 
+// if Parser<char> and then map with char::to_digit() then it returns Parser<u32>
+impl<A> Parser<A> {
+    fn map<B, F>(self, transform: F) -> Parser<B>
+    where
+        F: Fn(A) -> B + 'static
+    {
+        Parser::new(|input| {
+            ???
+        })
+    }
+}
+
